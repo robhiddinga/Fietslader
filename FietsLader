@@ -30,7 +30,7 @@ return {
 	},
 	execute = function(domoticz, item, triggerInfo)
 
---      Fiets afhankleijke waarden	    
+--      Fiets afhankelijke waarden	    
         local amp_aan     = 0
         local amp_laden   = 0.93
         local amp_vol     = 0.27
