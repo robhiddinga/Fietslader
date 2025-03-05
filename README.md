@@ -1,5 +1,6 @@
 # Fietslader
-domoticz script to detect loading state and  turn off
+domoticz script to detect loading state and turn uinit off
+To prevend fire in your shed from overheated units.
 
 I have my bike loader on a NAS-WR01ZE
 This one has a switch so I can turn it on when parking my bike
