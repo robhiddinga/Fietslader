@@ -14,7 +14,7 @@ Create FietsLader_Amp as user variable type string value 0.
 The three most important variables that you need to check and set in the script are:
 amp_aan   - the Ampere used when unit ia plugged in, but not attached to bike
 amp_laden - the maximum Ampere used while loading
-amp_vol   - the Ampere used when batterij is at 100% 
+amp_vol   - the Ampere used when battery is at 100% 
 
 Tested on two bikes and these values differ per bike/loading unit
 Above values are for a Batavus unit (2nd generation)
