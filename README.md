@@ -13,7 +13,7 @@ UsageElectric and GeneralVoltage are optional.
 Create FietsLader_Amp as user variable type string value 0.
 
 The three most important variables that you need to check and set in the script are:
-amp_aan   - the Ampere used when unit ia plugged in, but not attached to bike
+amp_aan   - the Ampere used when unit is plugged in, but not attached to a bike
 amp_laden - the maximum Ampere used while loading
 amp_vol   - the Ampere used when battery is at 100% 
 
