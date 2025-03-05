@@ -1,0 +1,134 @@
+--[[
+
+fietslader, gaat uit als lader minder stroom afneemt 
+stelling: Ampère wordt verlaagd als de accu vol is
+
+amp : aan zonder accu   = 0
+amp : aan - start laden = 0.93
+amp : aan - vol         = 0.27
+amp : max te laden      = 0.66
+
+]]--
+
+return {
+    active = true,
+	on = {
+        devices = 
+        { 
+           716, -- schakelaar
+           --720, -- Watt
+           1800 -- Ampere
+        },   
+		timer = {
+		    --'every minute', 
+		},
+	},
+	logging = {
+		level = domoticz.LOG_INFO,
+		--level = domoticz.LOG_DEBUG,
+		marker = 'FietsLader',
+	},
+	execute = function(domoticz, item, triggerInfo)
+
+--      Fiets afhankleijke waarden	    
+        local amp_aan     = 0
+        local amp_laden   = 0.93
+        local amp_vol     = 0.27
+--      Hieronder niets veranderen
+	    local watt        = 0
+        local amp         = 0
+        local vorige_amp  = 0
+        local bericht     = ''
+        local stijgend    = 'J'
+        local laden_aan   = 'Off'
+        local perc        = 0
+        local DomoticzUrl = "http://0.0.0.0:8080"
+        local name        = "garage+-+fietslader"
+        local newName     = name
+	    
+	    if item.idx == 716 and item.state == "On" then
+	            laden_aan = 'On'
+                bericht = "Fietsladen gestart"
+                domoticz.log(bericht, domoticz.LOG_INFO)
+	            domoticz.notify("Domoticz", bericht, domoticz.PRIORITY_LOW,domoticz.SOUND_DEFAULT, "" , domoticz.NSS_TELEGRAM)	        
+	    end 
+	    if item.idx == 716 and item.state == "Off" then
+	            laden_aan = 'Off'
+                bericht = "Fietslader staat uit"
+                domoticz.log(bericht, domoticz.LOG_INFO)
+	            domoticz.notify("Domoticz", bericht, domoticz.PRIORITY_LOW,domoticz.SOUND_DEFAULT, "" , domoticz.NSS_TELEGRAM)
+	            domoticz.variables('FietsLader_Amp').set(0)
+	            url = DomoticzUrl.."/json.htm?type=command&param=renamedevice&idx=716&name="..name
+	            domoticz.openURL(url) 
+	            --domoticz.log("OFF"..name)
+	    end 
+
+	    laden_aan = domoticz.devices(716).state	 
+	    --domoticz.log(laden_aan)
+	   if item.idx == 1800 and laden_aan == "On" then 
+
+	    amp        = tonumber(domoticz.devices(1800).current)
+	    vorige_amp = tonumber(domoticz.variables('FietsLader_Amp').value)
+	    watt       = domoticz.devices(720).actualWatt
+	    volt       = domoticz.devices(1799).voltage	
+	    
+	    if vorige_amp < amp then 
+	        bericht  = " (Stijgend)"
+	        stijgend = 'J'
+	     else
+	        bericht  = " (Dalend)"
+	        stijgend = 'N'
+	    end 
+	    if vorige_amp == amp then 
+	        bericht = " (Stabiel)"
+	        stijgend = 'N'
+	    end      
+	    
+        domoticz.log('Watt = '.. watt, domoticz.LOG_DEBUG)	    
+	    domoticz.log('.Vorige Amp = '.. vorige_amp, domoticz.LOG_DEBUG)
+	    domoticz.log('Actuele Amp = '.. amp .. bericht, domoticz.LOG_DEBUG)
+	    domoticz.log('Volt = '.. volt, domoticz.LOG_DEBUG)
+	    
+	    if amp > 0.2 and amp < 0.45 and item.idx == 716 and item.state == "On" then
+                    bericht = "aangezet terwijl accu al vol?"
+                    domoticz.log(bericht, domoticz.LOG_INFO)
+	                domoticz.notify("Domoticz", bericht, domoticz.PRIORITY_LOW,domoticz.SOUND_DEFAULT, "" , domoticz.NSS_TELEGRAM)	          
+	    end
+	    
+	    if item.idx == 1800 and domoticz.devices(716).state == "On" and (stijgend == 'N' and amp == 0) and domoticz.devices(716).lastUpdate.minutesAgo >= 1  then
+            bericht = "Fietslader niet aangesloten."
+            domoticz.log(bericht, domoticz.LOG_INFO)
+	        domoticz.notify("Domoticz", bericht, domoticz.PRIORITY_LOW,domoticz.SOUND_DEFAULT, "" , domoticz.NSS_TELEGRAM)	       
+	        domoticz.devices(716).switchOff()
+	    end 
+	    
+	    --bereken laad percentage 
+	    --27 = 100% | 93 = 0% | totaal te laden 66
+	    local nogTeLaden = (amp*100) - (amp_vol*100)
+	    perc = 100 - ((nogTeLaden/((amp_laden-amp_vol)*100))*100)
+	    domoticz.log(perc, domoticz.LOG_DEBUG)
+	    perc = domoticz.utils.round(perc,0)
+	    if perc > 100 then perc = 100 end
+	    newName = name .. "+|+" .. tostring(perc) .. "%25"
+	    url = DomoticzUrl.."/json.htm?type=command&param=renamedevice&idx=716&name=".. newName
+        domoticz.openURL(url)
+        domoticz.log("1800"..newName, domoticz.LOG_DEBUG))
+    
+        domoticz.variables('FietsLader_Amp').set(amp)
+	        
+        if ( stijgend == "N" and amp ~= 0 and amp < 0.30 ) then
+
+                if domoticz.devices(716).state == "On" then
+                    bericht = "Fiets is opgeladen"
+                    domoticz.log(bericht, domoticz.LOG_INFO)
+	                domoticz.notify("Domoticz", bericht, domoticz.PRIORITY_LOW,domoticz.SOUND_DEFAULT, "" , domoticz.NSS_TELEGRAM)
+	            
+                    domoticz.devices(716).switchOff()
+                    
+                    domoticz.variables('FietsLader_Amp').set(0)
+                end 	    
+	    end
+	    
+    end --1800
+end
+}
