@@ -1,4 +1,4 @@
-# Fietslader
+# Fietslader / Bicycle loader
 domoticz script to detect loading state and turn uinit off
 To prevend fire in your shed from overheated units.
 
