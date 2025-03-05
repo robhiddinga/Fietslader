@@ -5,8 +5,9 @@ To prevend fire in your shed from overheated units.
 I have my bike loader on a NAS-WR01ZE.
 This one has a switch so I can turn it on when parking my bike.
 The script monitors te loading and turns the NAS-WR01ZE off when battery is full. 
+Same can be accomplished with any switch that monitors Ampere usage.
 
-The domoticz devices needed are Switch and GeneralCurrent from the NAS-WR01ZE.
+The domoticz devices needed are Switch and GeneralCurrent (=Ampere)from the NAS-WR01ZE.
 UsageElectric and GeneralVoltage are optional.
 
 Create FietsLader_Amp as user variable type string value 0.
