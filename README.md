@@ -17,5 +17,7 @@ amp_aan   - the Ampere used when unit is plugged in, but not attached to a bike
 amp_laden - the maximum Ampere used while loading
 amp_vol   - the Ampere used when battery is at 100% 
 
+Do not forget to change the device numbers to your own values
+
 Tested on two bikes and these values differ per bike/loading unit
 Above values are for a Batavus unit (2nd generation)
